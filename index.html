@@ -3,100 +3,66 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Zera Dívida - App Financeiro</title>
+<title>Zera Dívida</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#34c759">
+<meta name="description" content="Controle suas dívidas e zere seu saldo">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family: -apple-system, sans-serif;}
-body{background:#0f1115;color:#fff;padding:16px;padding-bottom:100px;}
-h1{font-size:22px;text-align:center;margin:15px 0;}
-.card{background:#1a1e28;border-radius:16px;padding:14px;margin-bottom:12px;display:flex;gap:10px;align-items:center;}
-.card input{background:#252b3b;border:0;color:#fff;padding:12px;border-radius:10px;width:100%;outline:none;}
-.card input.valor{max-width:130px;text-align:right;font-weight:bold;}
-.tipo{display:flex;gap:6px;}
-.btn-tipo{padding:8px 10px;border-radius:8px;border:0;font-weight:bold;cursor:pointer;}
-.neg{background:#ff3b30;color:#fff;} .pos{background:#222; color:#888;}
-.pos.ativo{background:#34c759;color:#fff;}
-.neg.ativo{background:#ff3b30;}
-.delete{color:#ff3b30;font-size:20px;background:none;border:0;}
-.top-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:15px 0;}
-.box{background:#1a1e28;border-radius:16px;padding:16px;text-align:center;}
-.box h3{font-size:12px;color:#888;margin-bottom:6px;}
-.box p{font-size:20px;font-weight:bold;}
-.saldo.negativo{color:#ff3b30;} .saldo.positivo{color:#34c759;}
-.dica{background:linear-gradient(135deg,#34c759,#0a7e07);border-radius:16px;padding:16px;margin-top:16px;}
-.dica h3{font-size:14px;margin-bottom:8px;}
-.dica li{font-size:13px;margin:6px 0 6px 16px;}
-.add-btn{width:100%;padding:16px;border-radius:14px;border:2px dashed #333;background:none;color:#888;font-weight:bold;margin-top:10px;}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,sans-serif}
+body{background:#0f1115;color:#fff;padding:16px;padding-bottom:100px}
+h1{font-size:22px;text-align:center;margin:15px 0}
+.card{background:#1a1e28;border-radius:16px;padding:14px;margin-bottom:12px;display:flex;gap:10px;align-items:center}
+.card input{background:#252b3b;border:0;color:#fff;padding:12px;border-radius:10px;width:100%;outline:none}
+.card input.valor{max-width:130px;text-align:right;font-weight:bold}
+.tipo{display:flex;gap:6px}
+.btn-tipo{padding:8px 10px;border-radius:8px;border:0;font-weight:bold;cursor:pointer}
+.neg{background:#ff3b30;color:#fff} .pos{background:#222;color:#888}
+.pos.ativo{background:#34c759;color:#fff}
+.delete{color:#ff3b30;font-size:20px;background:none;border:0}
+.top-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:15px 0}
+.box{background:#1a1e28;border-radius:16px;padding:16px;text-align:center}
+.box h3{font-size:12px;color:#888;margin-bottom:6px}
+.box p{font-size:20px;font-weight:bold}
+.saldo.negativo{color:#ff3b30} .saldo.positivo{color:#34c759}
+.dica{background:linear-gradient(135deg,#34c759,#0a7e07);border-radius:16px;padding:16px;margin-top:16px}
+.add-btn{width:100%;padding:16px;border-radius:14px;border:2px dashed #333;background:none;color:#888;font-weight:bold;margin-top:10px}
 </style>
 </head>
 <body>
 <h1>💰 Zera Dívida</h1>
-
 <div class="top-cards">
-  <div class="box"><h3>TOTAL EM DÍVIDAS</h3><p id="totalNeg" class="saldo negativo">R$ 0,00</p></div>
-  <div class="box"><h3>TOTAL POSITIVO</h3><p id="totalPos" class="saldo positivo">R$ 0,00</p></div>
+<div class="box"><h3>TOTAL DÍVIDAS</h3><p id="totalNeg" class="saldo negativo">R$ 0,00</p></div>
+<div class="box"><h3>TOTAL QUE TEM</h3><p id="totalPos" class="saldo positivo">R$ 0,00</p></div>
 </div>
-<div class="box"><h3>SALDO FINAL</h3><p id="saldoFinal" style="font-size:26px;">R$ 0,00</p><small id="falta" style="color:#888;"></small></div>
-
+<div class="box"><h3>SALDO FINAL</h3><p id="saldoFinal" style="font-size:26px">R$ 0,00</p><small id="falta" style="color:#888"></small></div>
 <div id="lista"></div>
 <button class="add-btn" onclick="addLinha()">+ Adicionar Instituição</button>
-
-<div class="dica" id="dicaBox">
-  <h3>🎯 Como zerar mais rápido:</h3>
-  <ul id="listaDicas"><li>Adicione suas dívidas acima</li></ul>
-</div>
-
+<div class="dica"><h3>🎯 Como zerar:</h3><ul id="listaDicas"><li>Adicione suas dívidas</li></ul></div>
 <script>
-let dados = JSON.parse(localStorage.getItem('dividas')||'[]');
+let dados=JSON.parse(localStorage.getItem('dividas')||'[]');
 if(dados.length==0) dados=[{nome:'',valor:'',tipo:'neg'}];
-
 function salvar(){localStorage.setItem('dividas',JSON.stringify(dados));}
 function addLinha(){dados.push({nome:'',valor:'',tipo:'neg'}); render();}
 function delLinha(i){dados.splice(i,1); if(dados.length==0) dados.push({nome:'',valor:'',tipo:'neg'}); render();}
 function render(){
-  const lista=document.getElementById('lista');
-  lista.innerHTML='';
-  dados.forEach((d,i)=>{
-    const div=document.createElement('div');
-    div.className='card';
-    div.innerHTML=`
-      <input placeholder="Nome da instituição" value="${d.nome}" oninput="dados[${i}].nome=this.value;salvar()">
-      <div class="tipo">
-        <button class="btn-tipo neg ${d.tipo=='neg'?'ativo':''}" onclick="dados[${i}].tipo='neg';salvar();render()">-</button>
-        <button class="btn-tipo pos ${d.tipo=='pos'?'ativo':''}" onclick="dados[${i}].tipo='pos';salvar();render()">+</button>
-      </div>
-      <input class="valor" type="number" placeholder="R$" value="${d.valor}" oninput="dados[${i}].valor=this.value;salvar();calc()">
-      <button class="delete" onclick="delLinha(${i})">×</button>
-    `;
-    lista.appendChild(div);
-  });
-  calc();
+const lista=document.getElementById('lista');lista.innerHTML='';
+dados.forEach((d,i)=>{
+const div=document.createElement('div');div.className='card';
+div.innerHTML=`<input placeholder="Nome da instituição" value="${d.nome}" oninput="dados[${i}].nome=this.value;salvar()"><div class="tipo"><button class="btn-tipo neg ${d.tipo=='neg'?'ativo':''}" onclick="dados[${i}].tipo='neg';salvar();render()">-</button><button class="btn-tipo pos ${d.tipo=='pos'?'ativo':''}" onclick="dados[${i}].tipo='pos';salvar();render()">+</button></div><input class="valor" type="number" inputmode="decimal" placeholder="R$" value="${d.valor}" oninput="dados[${i}].valor=this.value;salvar();calc()"><button class="delete" onclick="delLinha(${i})">×</button>`;
+lista.appendChild(div);
+});calc();
 }
 function calc(){
-  let neg=0,pos=0;
-  dados.forEach(d=>{
-    let v=parseFloat(d.valor)||0;
-    if(d.tipo=='neg') neg+=v; else pos+=v;
-  });
-  let saldo=pos-neg;
-  document.getElementById('totalNeg').innerText='R$ '+neg.toLocaleString('pt-BR',{minimumFractionDigits:2});
-  document.getElementById('totalPos').innerText='R$ '+pos.toLocaleString('pt-BR',{minimumFractionDigits:2});
-  document.getElementById('saldoFinal').innerText='R$ '+saldo.toLocaleString('pt-BR',{minimumFractionDigits:2});
-  document.getElementById('saldoFinal').className= saldo>=0?'saldo positivo':'saldo negativo';
-  
-  const falta=document.getElementById('falta');
-  const dicas=document.getElementById('listaDicas');
-  if(saldo<0){
-    falta.innerText=`Falta R$ ${Math.abs(saldo).toLocaleString('pt-BR',{minimumFractionDigits:2})} para zerar`;
-    let maior = [...dados].filter(x=>x.tipo=='neg').sort((a,b)=>(parseFloat(b.valor)||0)-(parseFloat(a.valor)||0))[0];
-    dicas.innerHTML=`
-      <li>Foque em pagar primeiro: <b>${maior?maior.nome||'a maior dívida':''} (R$ ${maior?maior.valor:0})</b> - método bola de neve</li>
-      <li>Você precisa de + R$ ${Math.abs(saldo).toLocaleString('pt-BR')} extras este mês</li>
-      <li>Corte 10%: economize R$ ${(Math.abs(saldo)*0.1).toLocaleString('pt-BR')} já ajuda</li>
-    `;
-  } else {
-    falta.innerText= saldo==0?'✅ TUDO ZERADO!':'Sobrou positivo!';
-    dicas.innerHTML=`<li>🎉 Parabéns! Você zerou! Agora guarde esse valor de R$ ${saldo.toLocaleString('pt-BR')} todo mês.</li>`;
-  }
+let neg=0,pos=0;dados.forEach(d=>{let v=parseFloat(d.valor)||0; if(d.tipo=='neg') neg+=v; else pos+=v;});
+let saldo=pos-neg;
+document.getElementById('totalNeg').innerText='R$ '+neg.toLocaleString('pt-BR',{minimumFractionDigits:2});
+document.getElementById('totalPos').innerText='R$ '+pos.toLocaleString('pt-BR',{minimumFractionDigits:2});
+document.getElementById('saldoFinal').innerText='R$ '+saldo.toLocaleString('pt-BR',{minimumFractionDigits:2});
+document.getElementById('saldoFinal').className= saldo>=0?'saldo positivo':'saldo negativo';
+document.getElementById('falta').innerText= saldo<0?`Falta R$ ${Math.abs(saldo).toLocaleString('pt-BR',{minimumFractionDigits:2})} pra zerar`:'✅ TUDO ZERADO!';
+let maior=[...dados].filter(x=>x.tipo=='neg').sort((a,b)=>(parseFloat(b.valor)||0)-(parseFloat(a.valor)||0))[0];
+const dicas=document.getElementById('listaDicas');
+if(saldo<0 && maior){dicas.innerHTML=`<li>Pague primeiro: <b>${maior.nome||'maior dívida'} - R$ ${maior.valor}</b></li><li>Precisa de R$ ${Math.abs(saldo).toLocaleString('pt-BR')} extra</li>`} else if(saldo>=0){dicas.innerHTML=`<li>🎉 Zerado! Guarde R$ ${saldo.toLocaleString('pt-BR')} por mês.</li>`}
 }
 render();
 </script>
