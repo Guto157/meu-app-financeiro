@@ -6,7 +6,6 @@
 <title>Zera Dívida</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#34c759">
-<meta name="description" content="Controle suas dívidas e zere seu saldo">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,sans-serif}
 body{background:#0f1115;color:#fff;padding:16px;padding-bottom:100px}
@@ -15,9 +14,9 @@ h1{font-size:22px;text-align:center;margin:15px 0}
 .card input{background:#252b3b;border:0;color:#fff;padding:12px;border-radius:10px;width:100%;outline:none}
 .card input.valor{max-width:130px;text-align:right;font-weight:bold}
 .tipo{display:flex;gap:6px}
-.btn-tipo{padding:8px 10px;border-radius:8px;border:0;font-weight:bold;cursor:pointer}
-.neg{background:#ff3b30;color:#fff} .pos{background:#222;color:#888}
-.pos.ativo{background:#34c759;color:#fff}
+.btn-tipo{padding:8px 14px;border-radius:8px;border:0;font-weight:bold;cursor:pointer;background:#222;color:#888}
+.btn-tipo.neg.ativo{background:#ff3b30;color:#fff}
+.btn-tipo.pos.ativo{background:#34c759;color:#fff}
 .delete{color:#ff3b30;font-size:20px;background:none;border:0}
 .top-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:15px 0}
 .box{background:#1a1e28;border-radius:16px;padding:16px;text-align:center}
@@ -40,10 +39,10 @@ h1{font-size:22px;text-align:center;margin:15px 0}
 <div class="dica"><h3>🎯 Como zerar:</h3><ul id="listaDicas"><li>Adicione suas dívidas</li></ul></div>
 <script>
 let dados=JSON.parse(localStorage.getItem('dividas')||'[]');
-if(dados.length==0) dados=[{nome:'',valor:'',tipo:'neg'}];
+if(dados.length==0) dados=[{nome:'',valor:'',tipo:''}];
 function salvar(){localStorage.setItem('dividas',JSON.stringify(dados));}
-function addLinha(){dados.push({nome:'',valor:'',tipo:'neg'}); render();}
-function delLinha(i){dados.splice(i,1); if(dados.length==0) dados.push({nome:'',valor:'',tipo:'neg'}); render();}
+function addLinha(){dados.push({nome:'',valor:'',tipo:''}); render();}
+function delLinha(i){dados.splice(i,1); if(dados.length==0) dados.push({nome:'',valor:'',tipo:''}); render();}
 function render(){
 const lista=document.getElementById('lista');lista.innerHTML='';
 dados.forEach((d,i)=>{
@@ -53,18 +52,7 @@ lista.appendChild(div);
 });calc();
 }
 function calc(){
-let neg=0,pos=0;dados.forEach(d=>{let v=parseFloat(d.valor)||0; if(d.tipo=='neg') neg+=v; else pos+=v;});
+let neg=0,pos=0;dados.forEach(d=>{let v=parseFloat(d.valor)||0; if(d.tipo=='neg') neg+=v; else if(d.tipo=='pos') pos+=v;});
 let saldo=pos-neg;
 document.getElementById('totalNeg').innerText='R$ '+neg.toLocaleString('pt-BR',{minimumFractionDigits:2});
-document.getElementById('totalPos').innerText='R$ '+pos.toLocaleString('pt-BR',{minimumFractionDigits:2});
-document.getElementById('saldoFinal').innerText='R$ '+saldo.toLocaleString('pt-BR',{minimumFractionDigits:2});
-document.getElementById('saldoFinal').className= saldo>=0?'saldo positivo':'saldo negativo';
-document.getElementById('falta').innerText= saldo<0?`Falta R$ ${Math.abs(saldo).toLocaleString('pt-BR',{minimumFractionDigits:2})} pra zerar`:'✅ TUDO ZERADO!';
-let maior=[...dados].filter(x=>x.tipo=='neg').sort((a,b)=>(parseFloat(b.valor)||0)-(parseFloat(a.valor)||0))[0];
-const dicas=document.getElementById('listaDicas');
-if(saldo<0 && maior){dicas.innerHTML=`<li>Pague primeiro: <b>${maior.nome||'maior dívida'} - R$ ${maior.valor}</b></li><li>Precisa de R$ ${Math.abs(saldo).toLocaleString('pt-BR')} extra</li>`} else if(saldo>=0){dicas.innerHTML=`<li>🎉 Zerado! Guarde R$ ${saldo.toLocaleString('pt-BR')} por mês.</li>`}
-}
-render();
-</script>
-</body>
-</html>
+document.getElementById('totalPos').innerText='R$ '+pos.toLocaleString('pt
