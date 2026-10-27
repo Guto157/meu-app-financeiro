@@ -4,26 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zera Dívida</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#34c759">
-<meta name="description" content="Controle suas dívidas e zere seu saldo">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,sans-serif}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
 body{background:#0f1115;color:#fff;padding:16px;padding-bottom:100px}
 h1{font-size:22px;text-align:center;margin:15px 0}
 .card{background:#1a1e28;border-radius:16px;padding:14px;margin-bottom:12px;display:flex;gap:10px;align-items:center}
 .card input{background:#252b3b;border:0;color:#fff;padding:12px;border-radius:10px;width:100%;outline:none}
-.card input.valor{max-width:130px;text-align:right;font-weight:bold}
+.card input.valor{max-width:110px;text-align:right;font-weight:bold}
 .tipo{display:flex;gap:6px}
-.btn-tipo{padding:8px 10px;border-radius:8px;border:0;font-weight:bold;cursor:pointer}
-.neg{background:#222;color:#888} 
-.pos{background:#222;color:#888}
-.neg.ativo{background:#ff3b30;color:#fff}
-.pos.ativo{background:#34c759;color:#fff}
-.delete{color:#ff3b30;font-size:20px;background:none;border:0}
+.btn-tipo{padding:8px 12px;border-radius:8px;border:0;font-weight:bold;cursor:pointer;background:#222;color:#888}
+.btn-tipo.neg.ativo{background:#ff3b30;color:#fff}
+.btn-tipo.pos.ativo{background:#34c759;color:#fff}
+.delete{color:#ff3b30;font-size:22px;background:none;border:0;padding:0 6px}
 .top-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:15px 0}
 .box{background:#1a1e28;border-radius:16px;padding:16px;text-align:center}
-.box h3{font-size:12px;color:#888;margin-bottom:6px}
+.box h3{font-size:11px;color:#888;margin-bottom:6px}
 .box p{font-size:20px;font-weight:bold}
 .saldo.negativo{color:#ff3b30} .saldo.positivo{color:#34c759}
 .dica{background:linear-gradient(135deg,#34c759,#0a7e07);border-radius:16px;padding:16px;margin-top:16px}
@@ -41,5 +36,31 @@ h1{font-size:22px;text-align:center;margin:15px 0}
 <button class="add-btn" onclick="addLinha()">+ Adicionar Instituição</button>
 <div class="dica"><h3>🎯 Como zerar:</h3><ul id="listaDicas"><li>Adicione suas dívidas</li></ul></div>
 <script>
-let dados=JSON.parse(localStorage.getItem('dividas')||'[]');
-if(dados.length==0)
+let dados=[];
+try{dados=JSON.parse(localStorage.getItem('dividas')||'[]')}catch(e){dados=[]}
+if(!Array.isArray(dados)||dados.length===0) dados=[{nome:'',valor:'',tipo:'neg'}];
+function salvar(){localStorage.setItem('dividas',JSON.stringify(dados));}
+function addLinha(){dados.push({nome:'',valor:'',tipo:'neg'});salvar();render();}
+function delLinha(i){dados.splice(i,1);if(dados.length===0) dados=[{nome:'',valor:'',tipo:'neg'}];salvar();render();}
+function render(){
+const lista=document.getElementById('lista'); lista.innerHTML='';
+dados.forEach((d,i)=>{
+const div=document.createElement('div'); div.className='card';
+div.innerHTML='<input placeholder="Nome" value="'+(d.nome||'').replace(/"/g,'&quot;')+'" oninput="dados['+i+'].nome=this.value;salvar()"><div class="tipo"><button class="btn-tipo neg '+(d.tipo==='neg'?'ativo':'')+'" onclick="dados['+i+'].tipo=\'neg\';salvar();render()">-</button><button class="btn-tipo pos '+(d.tipo==='pos'?'ativo':'')+'" onclick="dados['+i+'].tipo=\'pos\';salvar();render()">+</button></div><input class="valor" type="number" placeholder="R$" value="'+(d.valor||'')+'" oninput="dados['+i+'].valor=this.value;salvar();calc()"><button class="delete" onclick="delLinha('+i+')">×</button>';
+lista.appendChild(div);
+});
+calc();
+}
+function calc(){
+let neg=0,pos=0; dados.forEach(d=>{let v=parseFloat(d.valor)||0; if(d.tipo==='neg') neg+=v; else pos+=v;});
+let saldo=pos-neg;
+document.getElementById('totalNeg').innerText='R$ '+neg.toLocaleString('pt-BR',{minimumFractionDigits:2});
+document.getElementById('totalPos').innerText='R$ '+pos.toLocaleString('pt-BR',{minimumFractionDigits:2});
+document.getElementById('saldoFinal').innerText='R$ '+saldo.toLocaleString('pt-BR',{minimumFractionDigits:2});
+document.getElementById('saldoFinal').className=saldo>=0?'saldo positivo':'saldo negativo';
+document.getElementById('falta').innerText=saldo<0?'Falta R$ '+Math.abs(saldo).toLocaleString('pt-BR',{minimumFractionDigits:2})+' pra zerar':'✅ TUDO ZERADO!';
+}
+render();
+</script>
+</body>
+</html>
