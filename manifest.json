@@ -1,0 +1,17 @@
+{
+  "name": "Zera Dívida - Financeiro",
+  "short_name": "ZeraDívida",
+  "description": "Controle suas dívidas e zere seu saldo",
+  "start_url": "/meu-app-financeiro/",
+  "display": "standalone",
+  "background_color": "#0f1115",
+  "theme_color": "#34c759",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/138/138292.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
