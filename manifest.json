@@ -1,8 +1,8 @@
 {
-  "name": "Zera Dívida - Financeiro",
+  "name": "Zera Dívida - Controle Financeiro",
   "short_name": "ZeraDívida",
-  "description": "Controle suas dívidas e zere seu saldo",
-  "start_url": "/meu-app-financeiro/",
+  "description": "Controle suas dívidas e descubra quanto falta para zerar",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#0f1115",
   "theme_color": "#34c759",
